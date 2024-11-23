@@ -1,0 +1,94 @@
+/* Estilo general */
+body {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1a1a2e;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1em 2em;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Links de la navbar */
+.navbar a {
+  text-decoration: none;
+  color: #ffffff;
+  padding: 0.7em 1.5em;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  margin: 0 0.5em;
+  white-space: nowrap; /* Evita que el texto se corte */
+}
+
+/* Hover y active */
+.navbar a:hover {
+  background-color: #e94560;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.navbar a.active {
+  background-color: #0f3460;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+/* Estilo responsivo */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column; /* Los enlaces se apilan verticalmente */
+    padding: 1em;
+  }
+
+  .navbar a {
+    font-size: 0.9rem; /* Texto ligeramente más pequeño */
+    padding: 0.5em 1em;
+    margin: 0.3em 0; /* Espaciado entre los enlaces */
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar a {
+    font-size: 0.8rem; /* Texto aún más pequeño para pantallas pequeñas */
+    padding: 0.5em;
+  }
+
+  .navbar {
+    padding: 0.5em; /* Reduce el padding general */
+  }
+}
+.nav-icons {
+  margin-top: 1em; /* Separación entre los íconos y los enlaces */
+}
+
+.nav-icons a {
+  font-size: 1.3rem;
+}
+
+/* Íconos de login/logout */
+.nav-icons a {
+  text-decoration: none;
+  color: #ffffff;
+  margin: 0 0.5em;
+  font-size: 1.5rem; /* Tamaño de los íconos */
+  transition: color 0.3s, transform 0.3s;
+}
+
+.nav-icons a:hover {
+  color: #e94560;
+  transform: scale(1.1);
+}
