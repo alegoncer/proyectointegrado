@@ -1,6 +1,6 @@
 import React from "react";
 
-const Login = () => {
+const Login = ({ onSwitchToRegister }) => {
   return (
     <div style={styles.container}>
       <div style={styles.formContainer}>
@@ -17,6 +17,13 @@ const Login = () => {
           <div style={styles.buttonContainer}>
             <button style={styles.button} type="submit">
               Entrar
+            </button>
+            <button
+              style={styles.button}
+              type="button"
+              onClick={onSwitchToRegister}
+            >
+              Nuevo usuario
             </button>
           </div>
         </form>
@@ -72,6 +79,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     marginTop: "20px",
+    gap: "10px",
   },
   button: {
     padding: "10px 20px",
@@ -85,18 +93,5 @@ const styles = {
     transition: "background-color 0.3s",
   },
 };
-
-// Add hover effects for buttons
-document.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll("button");
-  buttons.forEach((button) => {
-    button.addEventListener("mouseover", () => {
-      button.style.backgroundColor = "#e94560";
-    });
-    button.addEventListener("mouseout", () => {
-      button.style.backgroundColor = "#1a1a2e";
-    });
-  });
-});
 
 export default Login;

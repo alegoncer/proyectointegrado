@@ -61,43 +61,62 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Encuentra al usuario por su ID
         $user = User::find($id);
-
+    
+        // Verifica si el usuario existe
         if (!$user) {
-            return response()->json(['message' => 'Usuario no encontrado.'], 404);
+            return response()->json([
+                'message' => 'Usuario no encontrado.',
+                'status' => 'Error',
+            ], 404);
         }
-
+    
+        // Valida los datos de entrada
         $validatedData = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $id,
+            'email' => 'sometimes|email|unique:users,email,' . $id, // Permite el mismo email del usuario actual
             'password' => 'sometimes|string|min:8'
         ]);
-
+    
+        // Si se envía una contraseña, la encripta antes de actualizar
         if (isset($validatedData['password'])) {
             $validatedData['password'] = bcrypt($validatedData['password']);
         }
-
+    
+        // Actualiza el usuario con los datos validados
         $user->update($validatedData);
-
+    
         return response()->json([
             'message' => 'Usuario actualizado correctamente.',
+            'status' => 'OK',
             'data' => $user
-        ]);
+        ], 200);
     }
+    
 
     /**
      * Eliminar un usuario.
      */
     public function destroy($id)
     {
+        // Encuentra al usuario por su ID
         $user = User::find($id);
-
+    
+        // Verifica si el usuario existe
         if (!$user) {
-            return response()->json(['message' => 'Usuario no encontrado.'], 404);
+            return response()->json([
+                'message' => 'Usuario no encontrado.',
+                'status' => 'Error',
+            ], 404);
         }
-
+    
+        // Elimina el usuario
         $user->delete();
-
-        return response()->json(['message' => 'Usuario eliminado correctamente.']);
+    
+        return response()->json([
+            'message' => 'Usuario eliminado correctamente.',
+            'status' => 'OK',
+        ], 200);
     }
 }

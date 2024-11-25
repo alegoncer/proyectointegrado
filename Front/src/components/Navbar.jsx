@@ -7,17 +7,20 @@ const Navbar = () => {
 
   return (
     <div>
-      <div class="navbar">
-        <a href="/" class={` ${getLinkClass("/")}`}>
+      <div className="navbar">
+        <a href="/" className={` ${getLinkClass("/")}`}>
           Login
         </a>
-        <a href="/fichar" class={` ${getLinkClass("/fichar")}`}>
+        <a href="/fichar" className={` ${getLinkClass("/fichar")}`}>
           Fichar
         </a>
-        <a href="/justificantes" class={` ${getLinkClass("/justificantes")}`}>
+        <a
+          href="/justificantes"
+          className={` ${getLinkClass("/justificantes")}`}
+        >
           Justificantes
         </a>
-        <a href="/datos" class={` ${getLinkClass("/datos")}`}>
+        <a href="/datos" className={` ${getLinkClass("/datos")}`}>
           Datos Personales
         </a>
       </div>
