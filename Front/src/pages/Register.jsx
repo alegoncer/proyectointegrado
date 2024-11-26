@@ -64,6 +64,7 @@ const Register = ({ onSwitchToLogin }) => {
         const response = await fetch("http://localhost:8000/users", {
           method: "POST",
           headers: {
+            Accept: "application/json",
             "Content-Type": "application/json",
             "X-CSRF-TOKEN": csrfToken,
           },
