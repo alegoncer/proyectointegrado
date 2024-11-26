@@ -7,21 +7,30 @@ const Register = ({ onSwitchToLogin }) => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const [formData, setFormData] = useState({
-    name: "", // Cambiado de username a name
+    name: "",
     email: "",
     password: "",
   });
 
   const [csrfToken, setCsrfToken] = useState(null);
 
-  // Captura del CSRF token al montar el componente
+  // Obtiene el CSRF token desde Laravel al montar el componente
   useEffect(() => {
-    const token = document.querySelector('meta[name="csrf-token"]')?.content;
-    setCsrfToken(token);
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/csrf-token");
+        if (!response.ok) {
+          throw new Error("No se pudo obtener el token CSRF.");
+        }
+        const dataToken = await response.json();
+        setCsrfToken(dataToken.csrfToken); // Almacena el token
+        console.log("CSRF Token obtenido:", dataToken.csrfToken);
+      } catch (error) {
+        console.error("Error al obtener el CSRF Token:", error);
+      }
+    };
 
-    if (!token) {
-      console.error("CSRF Token no encontrado. Revisa tu configuración.");
-    }
+    fetchCsrfToken();
   }, []);
 
   const handlePasswordChange = (e) => {
@@ -56,10 +65,10 @@ const Register = ({ onSwitchToLogin }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrfToken, // Token CSRF capturado
+            "X-CSRF-TOKEN": csrfToken,
           },
           body: JSON.stringify({
-            name: formData.name, // Cambiado de username a name
+            name: formData.name,
             email: formData.email,
             password: password,
           }),
@@ -93,6 +102,14 @@ const Register = ({ onSwitchToLogin }) => {
     confirmPassword &&
     !errorMessage;
 
+  // Nueva variable para el motivo de deshabilitación
+  let disableReason = "";
+  if (!formData.name || !formData.email || !password || !confirmPassword) {
+    disableReason = "Por favor, complete todos los campos.";
+  } else if (errorMessage) {
+    disableReason = errorMessage; // "Las contraseñas no coinciden."
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.formContainer}>
@@ -102,7 +119,7 @@ const Register = ({ onSwitchToLogin }) => {
             Nombre de usuario:
             <input
               type="text"
-              name="name" // Cambiado de username a name
+              name="name" // Enlaza con el estado name
               style={styles.input}
               value={formData.name}
               onChange={handleInputChange}
@@ -142,13 +159,6 @@ const Register = ({ onSwitchToLogin }) => {
           {successMessage && <p style={styles.success}>{successMessage}</p>}
           <div style={styles.buttonContainer}>
             <button
-              style={styles.button}
-              type="button"
-              onClick={onSwitchToLogin}
-            >
-              Regresar
-            </button>
-            <button
               style={{
                 ...styles.button,
                 backgroundColor: isFormValid ? "#1a1a2e" : "#ccc",
@@ -156,6 +166,7 @@ const Register = ({ onSwitchToLogin }) => {
               }}
               type="submit"
               disabled={!isFormValid}
+              title={!isFormValid ? disableReason : ""}
             >
               Crear nuevo usuario
             </button>
@@ -168,6 +179,7 @@ const Register = ({ onSwitchToLogin }) => {
 
 const styles = {
   container: {
+    padding: "20px",
     display: "flex",
     justifyContent: "center",
     alignItems: "start",

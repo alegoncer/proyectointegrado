@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Justificantes = () => {
+const Absence = () => {
   const [inicio, setInicio] = useState("");
   const [fin, setFin] = useState("");
   const [incidencia, setIncidencia] = useState("");
@@ -33,24 +33,26 @@ const Justificantes = () => {
       <div style={styles.formContainer}>
         <h2 style={styles.title}>Registrar Justificante</h2>
         <form style={styles.form} onSubmit={handleSubmit}>
-          <label style={styles.label}>
-            Fecha y hora de inicio:
-            <input
-              type="datetime-local"
-              value={inicio}
-              onChange={(e) => setInicio(e.target.value)}
-              style={styles.input}
-            />
-          </label>
-          <label style={styles.label}>
-            Fecha y hora de fin:
-            <input
-              type="datetime-local"
-              value={fin}
-              onChange={(e) => setFin(e.target.value)}
-              style={styles.input}
-            />
-          </label>
+          <div style={styles.dateContainer}>
+            <label style={styles.dateLabel}>
+              Fecha de inicio:
+              <input
+                type="date"
+                value={inicio}
+                onChange={(e) => setInicio(e.target.value)}
+                style={styles.dateInput}
+              />
+            </label>
+            <label style={styles.dateLabel}>
+              Fecha de fin:
+              <input
+                type="date"
+                value={fin}
+                onChange={(e) => setFin(e.target.value)}
+                style={styles.dateInput}
+              />
+            </label>
+          </div>
           <label style={styles.label}>
             Tipo de incidencia:
             <select
@@ -97,10 +99,10 @@ const Justificantes = () => {
 
 const styles = {
   container: {
+    padding: "20px",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100vh",
     backgroundColor: "#f5f5f5",
     fontFamily: "'Roboto', sans-serif",
   },
@@ -122,6 +124,28 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "15px",
+  },
+  dateContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "10px",
+  },
+  dateLabel: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    fontSize: "16px",
+    color: "#1a1a2e",
+    fontWeight: "500",
+    textAlign: "left",
+  },
+  dateInput: {
+    padding: "10px",
+    marginTop: "5px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    fontSize: "16px",
+    fontFamily: "'Roboto', sans-serif",
   },
   label: {
     fontSize: "16px",
@@ -169,4 +193,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-export default Justificantes;
+export default Absence;

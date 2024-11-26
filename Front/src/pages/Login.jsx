@@ -18,13 +18,6 @@ const Login = ({ onSwitchToRegister }) => {
             <button style={styles.button} type="submit">
               Entrar
             </button>
-            <button
-              style={styles.button}
-              type="button"
-              onClick={onSwitchToRegister}
-            >
-              Nuevo usuario
-            </button>
           </div>
         </form>
       </div>
@@ -34,6 +27,7 @@ const Login = ({ onSwitchToRegister }) => {
 
 const styles = {
   container: {
+    padding: "20px",
     display: "flex",
     justifyContent: "center",
     alignItems: "start",
