@@ -8,13 +8,14 @@ const Register = ({ onSwitchToLogin }) => {
 
   const [formData, setFormData] = useState({
     name: "",
+    name: "",
     email: "",
     password: "",
   });
 
   const [csrfToken, setCsrfToken] = useState(null);
 
-  // Captura del CSRF token al montar el componente
+  // Obtiene el CSRF token desde Laravel al montar el componente
   useEffect(() => {
     const token = document.querySelector('meta[name="csrf-token"]')?.content;
     if (token) {
@@ -83,6 +84,7 @@ const Register = ({ onSwitchToLogin }) => {
           method: "POST",
           body: JSON.stringify({
             name: formData.name,
+            name: formData.name,
             email: formData.email,
             password: password,
           }),
@@ -107,6 +109,14 @@ const Register = ({ onSwitchToLogin }) => {
     password &&
     confirmPassword &&
     !errorMessage;
+
+  // Nueva variable para el motivo de deshabilitación
+  let disableReason = "";
+  if (!formData.name || !formData.email || !password || !confirmPassword) {
+    disableReason = "Por favor, complete todos los campos.";
+  } else if (errorMessage) {
+    disableReason = errorMessage; // "Las contraseñas no coinciden."
+  }
 
   return (
     <div style={styles.container}>
@@ -157,13 +167,6 @@ const Register = ({ onSwitchToLogin }) => {
           {successMessage && <p style={styles.success}>{successMessage}</p>}
           <div style={styles.buttonContainer}>
             <button
-              style={styles.button}
-              type="button"
-              onClick={onSwitchToLogin}
-            >
-              Regresar
-            </button>
-            <button
               style={{
                 ...styles.button,
                 backgroundColor: isFormValid ? "#1a1a2e" : "#ccc",
@@ -171,6 +174,7 @@ const Register = ({ onSwitchToLogin }) => {
               }}
               type="submit"
               disabled={!isFormValid}
+              title={!isFormValid ? disableReason : ""}
             >
               Crear nuevo usuario
             </button>
@@ -183,6 +187,7 @@ const Register = ({ onSwitchToLogin }) => {
 
 const styles = {
   container: {
+    padding: "20px",
     display: "flex",
     justifyContent: "center",
     alignItems: "start",

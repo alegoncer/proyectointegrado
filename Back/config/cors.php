@@ -1,12 +1,15 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'users'], // Incluye tus rutas específicas
+    'paths' => ['api/*', 'sanctum/csrf-cookie', '/csrf-token', '/users'], // Incluye tus rutas específicas
     'allowed_methods' => ['*'],    // Permite todos los métodos (GET, POST, etc.)
     'allowed_origins' => ['http://localhost:5173'], // Cambia al dominio del frontend
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],   // Permite todos los encabezados
     'exposed_headers' => [],
     'max_age' => 0,
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 ];
+
+
+

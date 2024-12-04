@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const Fichar = () => {
+const ClockIn = () => {
   const [time, setTime] = useState(new Date());
   const [entrada, setEntrada] = useState(null);
   const [salida, setSalida] = useState(null);
@@ -56,6 +56,7 @@ const Fichar = () => {
 
 const styles = {
   container: {
+    padding: "20px",
     display: "flex",
     justifyContent: "center",
     alignItems: "start",
@@ -113,4 +114,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-export default Fichar;
+export default ClockIn;
