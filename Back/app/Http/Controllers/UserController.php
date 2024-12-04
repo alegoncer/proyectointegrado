@@ -38,6 +38,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Usuario creado exitosamente.',
+            'status' => 'OK',
             'data' => $user
         ], 201);
     }
@@ -59,10 +60,12 @@ class UserController extends Controller
     /**
      * Actualizar un usuario existente.
      */
+
+
     public function update(Request $request, $id)
     {
         // Encuentra al usuario por su ID
-        $user = User::find($id);
+        $user = User::findOrFail($id);
     
         // Verifica si el usuario existe
         if (!$user) {
@@ -76,13 +79,13 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $id, // Permite el mismo email del usuario actual
-            'password' => 'sometimes|string|min:8'
+            // 'password' => 'sometimes|string|min:8'
         ]);
     
-        // Si se envía una contraseña, la encripta antes de actualizar
-        if (isset($validatedData['password'])) {
-            $validatedData['password'] = bcrypt($validatedData['password']);
-        }
+        // // Si se envía una contraseña, la encripta antes de actualizar
+        // if (isset($validatedData['password'])) {
+        //     $validatedData['password'] = bcrypt($validatedData['password']);
+        // }
     
         // Actualiza el usuario con los datos validados
         $user->update($validatedData);

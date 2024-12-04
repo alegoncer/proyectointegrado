@@ -15,34 +15,33 @@ const Users = () => {
     email: "",
   });
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/users");
-        if (!response.ok) {
-          throw new Error("Error al obtener los usuarios");
-        }
-        const data = await response.json();
-        setUsers(data.data);
-        setFilteredUsers(data.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/users");
+      if (!response.ok) {
+        throw new Error("Error al obtener los usuarios");
       }
-    };
-
+      const data = await response.json();
+      setUsers(data.data);
+      setFilteredUsers(data.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchUsers();
   }, []);
 
   useEffect(() => {
     const results = users.filter(
       (user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredUsers(results);
-  }, [searchTerm, users]);
+  }, [users, searchTerm]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -96,6 +95,7 @@ const Users = () => {
       }
 
       setUsers(users.filter((u) => u.id !== selectedUser.id));
+
       setShowDeleteModal(false);
       setSelectedUser(null);
     } catch (err) {
@@ -118,7 +118,7 @@ const Users = () => {
       const response = await fetch(
         `http://localhost:8000/users/${selectedUser.id}`,
         {
-          method: "POST", // O "PUT" según tu backend
+          method: "PUT", // O "PUT" según tu backend
           headers: {
             "Content-Type": "application/json",
           },
@@ -133,6 +133,7 @@ const Users = () => {
       const updatedUser = await response.json();
 
       setUsers(users.map((u) => (u.id === selectedUser.id ? updatedUser : u)));
+      fetchUsers();
       setShowEditModal(false);
       setSelectedUser(null);
     } catch (err) {

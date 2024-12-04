@@ -84,7 +84,6 @@ const Register = ({ onSwitchToLogin }) => {
           method: "POST",
           body: JSON.stringify({
             name: formData.name,
-            name: formData.name,
             email: formData.email,
             password: password,
           }),
