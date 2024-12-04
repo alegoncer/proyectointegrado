@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\User; // Asegúrate de tener el modelo User configurado
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -33,12 +36,16 @@ class UserController extends Controller
         $user = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
-            'password' => bcrypt($validatedData['password']), // Encripta la contraseña
+            'password' => Hash::make($request->password), // Hashea la contraseña
         ]);
+
+        // Generar el token
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Usuario creado exitosamente.',
             'status' => 'OK',
+            'token' => $token,
             'data' => $user
         ], 201);
     }
@@ -79,13 +86,13 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $id, // Permite el mismo email del usuario actual
-            // 'password' => 'sometimes|string|min:8'
+            'password' => 'sometimes|string|min:8'
         ]);
     
-        // // Si se envía una contraseña, la encripta antes de actualizar
-        // if (isset($validatedData['password'])) {
-        //     $validatedData['password'] = bcrypt($validatedData['password']);
-        // }
+        // Si se envía una contraseña, la encripta antes de actualizar
+        if (isset($validatedData['password'])) {
+            $validatedData['password'] = bcrypt($validatedData['password']);
+        }
     
         // Actualiza el usuario con los datos validados
         $user->update($validatedData);
@@ -122,4 +129,48 @@ class UserController extends Controller
             'status' => 'OK',
         ], 200);
     }
+
+    // Inicio de sesión
+    public function login(Request $request)
+    {
+        // Validar la solicitud
+        $credentials = $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        // Intentar autenticar al usuario
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['message' => 'Credenciales incorrectas'], 401);
+        }
+
+        // Obtener el usuario autenticado
+        $user = Auth::user();
+
+        // Generar el token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Inicio de sesión exitoso',
+            'user' => $user,
+            'token' => $token,
+        ]);
+    }
+     // Cerrar sesión
+     public function logout(Request $request)
+     {
+         // Revocar todos los tokens del usuario autenticado
+         $request->user()->tokens()->delete();
+ 
+         return response()->json(['message' => 'Sesión cerrada correctamente']);
+     }
+
+
+    public function me(Request $request)
+    {
+        return response()->json([
+            'user' => $request->user(),
+        ]);
+    }
+
 }

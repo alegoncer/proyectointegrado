@@ -12,6 +12,7 @@ import ClockIn from "./pages/clockIn";
 import Absence from "./pages/Absence";
 import PersonalData from "./pages/PersonalData";
 import UserList from "./pages/Users";
+import Me from "./pages/TestDataMe";
 
 function App() {
   const action = useNavigationType();
@@ -37,7 +38,7 @@ function App() {
       <Route path="/" element={<Login />} />
       <Route path="/ClockIn" element={<ClockIn />} />
       <Route path="/Absence" element={<Absence />} />
-      <Route path="/PersonalData" element={<PersonalData />} />
+      <Route path="/PersonalData" element={<Me />} />
       <Route path="/Users" element={<UserList />} />{" "}
       <Route path="/Register" element={<Register />} />
     </Routes>

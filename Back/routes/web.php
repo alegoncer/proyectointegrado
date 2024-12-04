@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Controllers\UserController;
 
 
+
 // Ruta principal (página de bienvenida)
 Route::get('/', function () {
     return view('welcome'); // Muestra la vista predeterminada "welcome.blade.php"
@@ -22,4 +23,17 @@ Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{id}', [UserController::class, 'update']);
 
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+// Rutas Login y me
+
+Route::post('/login', [UserController::class, 'login']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [UserController::class, 'logout']);
+    Route::get('/me', [UserController::class, 'me']);
+});
+
+
+
+
+
 

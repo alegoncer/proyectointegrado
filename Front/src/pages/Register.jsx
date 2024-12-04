@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Register = ({ onSwitchToLogin }) => {
+const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -8,23 +9,9 @@ const Register = ({ onSwitchToLogin }) => {
 
   const [formData, setFormData] = useState({
     name: "",
-    name: "",
     email: "",
-    password: "",
   });
-
-  const [csrfToken, setCsrfToken] = useState(null);
-
-  // Obtiene el CSRF token desde Laravel al montar el componente
-  useEffect(() => {
-    const token = document.querySelector('meta[name="csrf-token"]')?.content;
-    if (token) {
-      setCsrfToken(token);
-      console.log("CSRF Token encontrado:", token);
-    } else {
-      console.error("CSRF Token no encontrado. Revisa tu configuración.");
-    }
-  }, []);
+  const navigate = useNavigate();
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -49,39 +36,18 @@ const Register = ({ onSwitchToLogin }) => {
     }
   };
 
-  // Función para realizar peticiones con fetch y agregar automáticamente el CSRF token
-  const fetchWithCsrf = async (url, options = {}) => {
-    if (!csrfToken) {
-      throw new Error("CSRF Token no disponible.");
-    }
-
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      "X-CSRF-TOKEN": csrfToken,
-      ...options.headers, // Permite agregar más encabezados si es necesario
-    };
-    console.log(csrfToken);
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error desconocido");
-    }
-
-    return response.json();
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage(""); // Limpia los mensajes anteriores
+    setSuccessMessage(""); // Limpia los mensajes anteriores
 
     if (!errorMessage && password === confirmPassword) {
       try {
-        const data = await fetchWithCsrf("http://localhost:8000/users", {
+        const response = await fetch("http://localhost:8000/users", {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json", // Se agregó este encabezado
+          },
           body: JSON.stringify({
             name: formData.name,
             email: formData.email,
@@ -89,14 +55,18 @@ const Register = ({ onSwitchToLogin }) => {
           }),
         });
 
-        console.log("Respuesta del servidor:", data);
+        if (!response.ok) {
+          const errorData = await response.json();
+          setErrorMessage(errorData.message || "Error al crear el usuario.");
+          return;
+        }
 
         setSuccessMessage("Usuario creado con éxito.");
-        setFormData({ name: "", email: "", password: "" });
+        setFormData({ name: "", email: "" });
         setPassword("");
         setConfirmPassword("");
+        navigate("/login");
       } catch (error) {
-        console.error("Error en el fetch:", error.message);
         setErrorMessage("Error al conectarse con el servidor.");
       }
     }
