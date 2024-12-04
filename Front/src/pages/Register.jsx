@@ -7,7 +7,7 @@ const Register = ({ onSwitchToLogin }) => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const [formData, setFormData] = useState({
-    name: "", // Cambiado de username a name
+    name: "",
     email: "",
     password: "",
   });
@@ -17,9 +17,10 @@ const Register = ({ onSwitchToLogin }) => {
   // Captura del CSRF token al montar el componente
   useEffect(() => {
     const token = document.querySelector('meta[name="csrf-token"]')?.content;
-    setCsrfToken(token);
-
-    if (!token) {
+    if (token) {
+      setCsrfToken(token);
+      console.log("CSRF Token encontrado:", token);
+    } else {
       console.error("CSRF Token no encontrado. Revisa tu configuración.");
     }
   }, []);
@@ -47,32 +48,46 @@ const Register = ({ onSwitchToLogin }) => {
     }
   };
 
+  // Función para realizar peticiones con fetch y agregar automáticamente el CSRF token
+  const fetchWithCsrf = async (url, options = {}) => {
+    if (!csrfToken) {
+      throw new Error("CSRF Token no disponible.");
+    }
+
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-CSRF-TOKEN": csrfToken,
+      ...options.headers, // Permite agregar más encabezados si es necesario
+    };
+    console.log(csrfToken);
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error desconocido");
+    }
+
+    return response.json();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!errorMessage && password === confirmPassword) {
       try {
-        const response = await fetch("http://localhost:8000/users", {
+        const data = await fetchWithCsrf("http://localhost:8000/users", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrfToken, // Token CSRF capturado
-          },
           body: JSON.stringify({
-            name: formData.name, // Cambiado de username a name
+            name: formData.name,
             email: formData.email,
             password: password,
           }),
         });
 
-        console.log("Estado de la respuesta:", response.status);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Error desconocido");
-        }
-
-        const data = await response.json();
         console.log("Respuesta del servidor:", data);
 
         setSuccessMessage("Usuario creado con éxito.");
@@ -102,7 +117,7 @@ const Register = ({ onSwitchToLogin }) => {
             Nombre de usuario:
             <input
               type="text"
-              name="name" // Cambiado de username a name
+              name="name"
               style={styles.input}
               value={formData.name}
               onChange={handleInputChange}
