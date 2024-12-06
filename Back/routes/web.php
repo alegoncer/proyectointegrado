@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkEntryController;
+use App\Http\Controllers\AbsenceController;
 
 
 
@@ -43,6 +44,9 @@ Route::post('/work-entry/end', [WorkEntryController::class, 'endWork']);
 // Listar entradas/salidas del usuario autenticado
 Route::get('/work-entries', [WorkEntryController::class, 'index']);
 
+
+Route::post('/absences', [AbsenceController::class, 'store']); // Crear justificante
+    Route::get('/absences', [AbsenceController::class, 'index']); // Listar justificantes del usuario autenticado
 
 
 

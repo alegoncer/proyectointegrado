@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkEntryController;
+use App\Http\Controllers\AbsenceController;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 Route::post('/work-entry/start', [WorkEntryController::class, 'startWork']);
                 Route::post('/work-entry/end', [WorkEntryController::class, 'endWork']);
                 Route::get('/work-entries', [WorkEntryController::class, 'index']);
+                Route::post('/absences', [AbsenceController::class, 'store']); // Crear justificante
+    Route::get('/absences', [AbsenceController::class, 'index']); // Listar justificantes del usuario autenticado
             });
         }
     )

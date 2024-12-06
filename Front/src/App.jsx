@@ -12,7 +12,6 @@ import ClockIn from "./pages/clockIn";
 import Absence from "./pages/Absence";
 import PersonalData from "./pages/PersonalData";
 import UserList from "./pages/Users";
-import Me from "./pages/TestDataMe";
 
 function App() {
   const action = useNavigationType();

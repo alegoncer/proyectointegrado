@@ -6,6 +6,8 @@ const Absence = () => {
   const [incidencia, setIncidencia] = useState("");
   const [observaciones, setObservaciones] = useState("");
   const [archivo, setArchivo] = useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleArchivoChange = (e) => {
     const file = e.target.files[0];
@@ -16,22 +18,68 @@ const Absence = () => {
     setArchivo(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí puedes manejar el envío de datos
-    console.log({
-      inicio,
-      fin,
-      incidencia,
-      observaciones,
-      archivo,
-    });
+    setError("");
+    setSuccess("");
+
+    if (!inicio || !fin || !incidencia) {
+      setError("Por favor, completa todos los campos obligatorios.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("auth_token");
+
+      if (!token) {
+        setError("No estás autenticado.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("start_date", inicio);
+      formData.append("end_date", fin);
+      formData.append("type", incidencia);
+      formData.append("observations", observaciones);
+      console.log(formData);
+      if (archivo) formData.append("file", archivo);
+
+      const response = await fetch("http://localhost:8000/absences", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // Token de autenticación
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Error al registrar el justificante."
+        );
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setSuccess("Justificante registrado con éxito.");
+      setInicio("");
+      setFin("");
+      setIncidencia("");
+      setObservaciones("");
+      setArchivo(null);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.formContainer}>
         <h2 style={styles.title}>Registrar Justificante</h2>
+        {error && <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>}
+        {success && (
+          <p style={{ color: "green", marginBottom: "10px" }}>{success}</p>
+        )}
         <form style={styles.form} onSubmit={handleSubmit}>
           <div style={styles.dateContainer}>
             <label style={styles.dateLabel}>
@@ -179,18 +227,5 @@ const styles = {
     transition: "background-color 0.3s",
   },
 };
-
-// Add hover effects for buttons
-document.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll("button");
-  buttons.forEach((button) => {
-    button.addEventListener("mouseover", () => {
-      button.style.backgroundColor = "#e94560";
-    });
-    button.addEventListener("mouseout", () => {
-      button.style.backgroundColor = "#1a1a2e";
-    });
-  });
-});
 
 export default Absence;
