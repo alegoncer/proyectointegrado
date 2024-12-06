@@ -38,7 +38,7 @@ function App() {
       <Route path="/" element={<Login />} />
       <Route path="/ClockIn" element={<ClockIn />} />
       <Route path="/Absence" element={<Absence />} />
-      <Route path="/PersonalData" element={<Me />} />
+      <Route path="/PersonalData" element={<PersonalData />} />
       <Route path="/Users" element={<UserList />} />{" "}
       <Route path="/Register" element={<Register />} />
     </Routes>

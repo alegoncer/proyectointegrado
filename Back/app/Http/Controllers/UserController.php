@@ -173,4 +173,48 @@ class UserController extends Controller
         ]);
     }
 
+    public function updateme(Request $request)
+    {
+        $user = Auth::user(); // Obtiene el usuario autenticado
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no autenticado'], 401);
+        }
+
+        // Validar los datos recibidos
+        $validator = Validator::make($request->all(), [
+            'telefono_fijo' => 'nullable|string|max:15',
+            'telefono_movil' => 'nullable|string|max:15',
+            'direccion' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'provincia' => 'nullable|string|max:100',
+            'pais' => 'nullable|string|max:100',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Intenta actualizar los datos
+        try {
+            $user->update($request->only([
+                'telefono_fijo',
+                'telefono_movil',
+                'direccion',
+                'email',
+                'provincia',
+                'pais',
+            ]));
+
+            return response()->json([
+                'message' => 'Datos actualizados con éxito.',
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Ocurrió un error al actualizar los datos.',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

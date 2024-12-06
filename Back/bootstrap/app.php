@@ -3,12 +3,21 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WorkEntryController;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            Route::middleware('auth:sanctum')->group(function () {
+                Route::post('/work-entry/start', [WorkEntryController::class, 'startWork']);
+                Route::post('/work-entry/end', [WorkEntryController::class, 'endWork']);
+                Route::get('/work-entries', [WorkEntryController::class, 'index']);
+            });
+        }
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens(except: [

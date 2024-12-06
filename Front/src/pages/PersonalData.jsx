@@ -1,61 +1,129 @@
 import React, { useState, useEffect } from "react";
 
 const PersonalData = () => {
-  const [datos, setDatos] = useState({
+  const [user, setUser] = useState({
     dni: "",
-    nombre: "",
+    name: "",
     apellidos: "",
-    telefono: "",
-    movil: "",
-    mail: "",
+    telefono_fijo: "",
+    telefono_movil: "",
     direccion: "",
-    pais: "",
+    email: "",
     provincia: "",
+    pais: "",
+    rrhh: "false",
   });
-
+  const [error, setError] = useState("");
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const userData = {
-        dni: "12345678A",
-        nombre: "Juan",
-        apellidos: "Pérez García",
-        telefono: "912345678",
-        movil: "612345678",
-        mail: "juan.perez@example.com",
-        direccion: "Calle Falsa 123",
-        pais: "España",
-        provincia: "Madrid",
-      };
-      setDatos(userData);
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("auth_token");
+
+        if (!token) {
+          setError("No estás autenticado.");
+          return;
+        }
+
+        const response = await fetch("http://localhost:8000/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Error al obtener la información del usuario.");
+        }
+
+        const data = await response.json();
+        setUser({
+          id: data.user.id ?? "",
+          dni: data.user.dni ?? "",
+          name: data.user.name ?? "",
+          apellidos: data.user.apellidos ?? "",
+          telefono_fijo: data.user.telefono_fijo ?? "",
+          telefono_movil: data.user.telefono_movil ?? "",
+          direccion: data.user.direccion ?? "",
+          email: data.user.email ?? "",
+          provincia: data.user.provincia ?? "",
+          pais: data.user.pais ?? "",
+          rrhh: data.user.rrhh ?? "false",
+        }); // Aseguramos valores por defecto
+      } catch (err) {
+        setError(err.message);
+      }
     };
 
-    fetchUserData();
+    fetchUser();
   }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setDatos((prevDatos) => ({
-      ...prevDatos,
+    setUser((prevUser) => ({
+      ...prevUser,
       [name]: value,
     }));
   };
 
-  const handleSave = () => {
-    setEditMode(false);
-    console.log("Datos actualizados:", datos);
-    alert("Tus datos han sido actualizados.");
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem("auth_token");
+
+      if (!token) {
+        setError("No estás autenticado.");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:8000/me/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(user), // Envía los datos actualizados
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al guardar los cambios.");
+      }
+
+      const data = await response.json();
+      setUser({
+        dni: data.user.dni ?? "",
+        name: data.user.name ?? "",
+        apellidos: data.user.apellidos ?? "",
+        telefono_fijo: data.user.telefono_fijo ?? "",
+        telefono_movil: data.user.telefono_movil ?? "",
+        direccion: data.user.direccion ?? "",
+        email: data.user.email ?? "",
+        provincia: data.user.provincia ?? "",
+        pais: data.user.pais ?? "",
+        rrhh: data.user.rrhh ?? "false",
+      }); // Aseguramos valores por defecto
+      setEditMode(false); // Salir del modo edición
+      alert("Tus datos han sido actualizados.");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  const noEditableFields = ["dni", "nombre", "apellidos"];
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
+
+  if (!user) {
+    return <p>Cargando información del usuario...</p>;
+  }
 
   return (
     <div style={styles.container}>
       <div style={styles.formContainer}>
         <h2 style={styles.title}>Mis Datos</h2>
         <form style={styles.form}>
-          {/* Sección 1: Datos personales */}
+          {/* Datos Personales */}
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>Datos Personales</h3>
             <div style={styles.twoColumnGrid}>
@@ -64,7 +132,7 @@ const PersonalData = () => {
                 <input
                   type="text"
                   name="dni"
-                  value={datos.dni}
+                  value={user.dni}
                   onChange={handleInputChange}
                   style={styles.input}
                   disabled
@@ -74,8 +142,8 @@ const PersonalData = () => {
                 <label style={styles.label}>Nombre:</label>
                 <input
                   type="text"
-                  name="nombre"
-                  value={datos.nombre}
+                  name="name"
+                  value={user.name}
                   onChange={handleInputChange}
                   style={styles.input}
                   disabled
@@ -86,7 +154,7 @@ const PersonalData = () => {
                 <input
                   type="text"
                   name="apellidos"
-                  value={datos.apellidos}
+                  value={user.apellidos}
                   onChange={handleInputChange}
                   style={styles.input}
                   disabled
@@ -95,7 +163,7 @@ const PersonalData = () => {
             </div>
           </div>
 
-          {/* Sección 2: Contacto */}
+          {/* Contacto */}
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>Contacto</h3>
             <div style={styles.twoColumnGrid}>
@@ -103,8 +171,8 @@ const PersonalData = () => {
                 <label style={styles.label}>Teléfono:</label>
                 <input
                   type="text"
-                  name="telefono"
-                  value={datos.telefono}
+                  name="telefono_fijo"
+                  value={user.telefono_fijo}
                   onChange={handleInputChange}
                   style={{
                     ...styles.input,
@@ -117,8 +185,8 @@ const PersonalData = () => {
                 <label style={styles.label}>Móvil:</label>
                 <input
                   type="text"
-                  name="movil"
-                  value={datos.movil}
+                  name="telefono_movil"
+                  value={user.telefono_movil}
                   onChange={handleInputChange}
                   style={{
                     ...styles.input,
@@ -131,8 +199,8 @@ const PersonalData = () => {
                 <label style={styles.label}>Email:</label>
                 <input
                   type="email"
-                  name="mail"
-                  value={datos.mail}
+                  name="email"
+                  value={user.email}
                   onChange={handleInputChange}
                   style={{
                     ...styles.input,
@@ -144,7 +212,7 @@ const PersonalData = () => {
             </div>
           </div>
 
-          {/* Sección 3: Dirección */}
+          {/* Dirección */}
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>Dirección</h3>
             <div style={styles.twoColumnGrid}>
@@ -153,7 +221,7 @@ const PersonalData = () => {
                 <input
                   type="text"
                   name="direccion"
-                  value={datos.direccion}
+                  value={user.direccion}
                   onChange={handleInputChange}
                   style={{
                     ...styles.input,
@@ -167,7 +235,7 @@ const PersonalData = () => {
                 <input
                   type="text"
                   name="provincia"
-                  value={datos.provincia}
+                  value={user.provincia}
                   onChange={handleInputChange}
                   style={{
                     ...styles.input,
@@ -181,7 +249,7 @@ const PersonalData = () => {
                 <input
                   type="text"
                   name="pais"
-                  value={datos.pais}
+                  value={user.pais}
                   onChange={handleInputChange}
                   style={{
                     ...styles.input,
@@ -251,7 +319,7 @@ const styles = {
   twoColumnGrid: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: "30px", // Espacio reducido entre columnas
+    gap: "30px",
   },
   formGroup: {
     display: "flex",
@@ -267,10 +335,10 @@ const styles = {
   },
   input: {
     width: "100%",
-    padding: "8px", // Espaciado reducido
+    padding: "8px",
     borderRadius: "5px",
     border: "1px solid #ccc",
-    fontSize: "14px", // Tamaño de texto reducido
+    fontSize: "14px",
     fontFamily: "'Roboto', sans-serif",
   },
   buttonContainer: {

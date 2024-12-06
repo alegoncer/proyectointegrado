@@ -53,4 +53,8 @@ class User extends Authenticatable
             'rrhh' => 'boolean', // Cast 'rrhh' as boolean
         ];
     }
+    public function workEntries()
+    {
+        return $this->hasMany(WorkEntry::class);
+    }
 }
