@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -6,14 +7,10 @@ const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // Nuevo estado para el modal de eliminación
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editFormData, setEditFormData] = useState({
-    name: "",
-    email: "",
-  });
+  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     try {
@@ -30,6 +27,7 @@ const Users = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -38,6 +36,7 @@ const Users = () => {
     const results = users.filter(
       (user) =>
         user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.apellidos?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredUsers(results);
@@ -47,30 +46,9 @@ const Users = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleViewModalClose = () => {
-    setShowViewModal(false);
-    setSelectedUser(null);
-  };
-
-  const handleEditModalClose = () => {
-    setShowEditModal(false);
-    setSelectedUser(null);
-  };
-
-  const handleDeleteModalClose = () => {
-    setShowDeleteModal(false);
-    setSelectedUser(null);
-  };
-
   const handleViewClick = (user) => {
     setSelectedUser(user);
     setShowViewModal(true);
-  };
-
-  const handleEditClick = (user) => {
-    setSelectedUser(user);
-    setEditFormData({ name: user.name, email: user.email });
-    setShowEditModal(true);
   };
 
   const handleDeleteClick = (user) => {
@@ -95,7 +73,6 @@ const Users = () => {
       }
 
       setUsers(users.filter((u) => u.id !== selectedUser.id));
-
       setShowDeleteModal(false);
       setSelectedUser(null);
     } catch (err) {
@@ -103,42 +80,8 @@ const Users = () => {
     }
   };
 
-  const handleEditFormChange = (e) => {
-    const { name, value } = e.target;
-    setEditFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleEditFormSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch(
-        `http://localhost:8000/users/${selectedUser.id}`,
-        {
-          method: "PUT", // O "PUT" según tu backend
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(editFormData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al actualizar el usuario");
-      }
-
-      const updatedUser = await response.json();
-
-      setUsers(users.map((u) => (u.id === selectedUser.id ? updatedUser : u)));
-      fetchUsers();
-      setShowEditModal(false);
-      setSelectedUser(null);
-    } catch (err) {
-      alert(err.message);
-    }
+  const handleEditClick = (user) => {
+    navigate(`/work-entries/${user.id}`);
   };
 
   if (loading) {
@@ -152,20 +95,20 @@ const Users = () => {
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Lista de Usuarios</h1>
-
-      {/* Buscador */}
       <input
         type="text"
-        placeholder="Buscar por nombre o email"
+        placeholder="Buscar por nombre, apellidos o email"
         value={searchTerm}
         onChange={handleSearchChange}
         style={styles.searchInput}
       />
-
       <div style={styles.tableContainer}>
         {filteredUsers.map((user) => (
           <div style={styles.tableRow} key={user.id}>
-            <div style={styles.tableCell}>{user.name}</div>
+            <div style={styles.tableCell}>
+              {`${user.name} ${user.apellidos}`}
+            </div>
+            <div style={styles.tableCell}>{user.provincia}</div>
             <div style={styles.tableCell}>{user.email}</div>
             <div style={styles.tableCellButtons}>
               <button
@@ -178,9 +121,9 @@ const Users = () => {
               <button
                 onClick={() => handleEditClick(user)}
                 style={styles.button}
-                title="Editar usuario"
+                title="Ver Entradas y Salidas"
               >
-                ✏️
+                📆
               </button>
               <button
                 onClick={() => handleDeleteClick(user)}
@@ -200,55 +143,27 @@ const Users = () => {
           <div style={styles.modal}>
             <h2>Detalles del Usuario</h2>
             <p>
-              <strong>Nombre:</strong> {selectedUser.name}
+              <strong>DNI:</strong> {selectedUser.dni}
+            </p>
+            <p>
+              <strong>Nombre:</strong> {selectedUser.name}{" "}
+              {selectedUser.apellidos}
+            </p>
+            <p>
+              <strong>Provincia:</strong> {selectedUser.provincia}
             </p>
             <p>
               <strong>Email:</strong> {selectedUser.email}
             </p>
-            <button onClick={handleViewModalClose} style={styles.closeButton}>
+            <p>
+              <strong>Móvil:</strong> {selectedUser.telefono_movil}
+            </p>
+            <button
+              onClick={() => setShowViewModal(false)}
+              style={styles.closeButton}
+            >
               Cerrar
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Modal para editar usuario */}
-      {showEditModal && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modal}>
-            <h2>Editar Usuario</h2>
-            <form onSubmit={handleEditFormSubmit}>
-              <div style={styles.formGroup}>
-                <label>Nombre:</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={editFormData.name}
-                  onChange={handleEditFormChange}
-                  style={styles.input}
-                />
-              </div>
-              <div style={styles.formGroup}>
-                <label>Email:</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={editFormData.email}
-                  onChange={handleEditFormChange}
-                  style={styles.input}
-                />
-              </div>
-              <button type="submit" style={styles.saveButton}>
-                Guardar
-              </button>
-              <button
-                type="button"
-                onClick={handleEditModalClose}
-                style={styles.closeButton}
-              >
-                Cancelar
-              </button>
-            </form>
           </div>
         </div>
       )}
@@ -267,7 +182,7 @@ const Users = () => {
                 Eliminar
               </button>
               <button
-                onClick={handleDeleteModalClose}
+                onClick={() => setShowDeleteModal(false)}
                 style={styles.closeButton}
               >
                 Cancelar
@@ -357,15 +272,6 @@ const styles = {
     cursor: "pointer",
     marginLeft: "10px",
   },
-  saveButton: {
-    marginTop: "10px",
-    padding: "10px 20px",
-    backgroundColor: "#1a1a2e",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
   deleteButton: {
     marginTop: "10px",
     padding: "10px 20px",
@@ -379,17 +285,6 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     marginTop: "20px",
-  },
-  formGroup: {
-    marginBottom: "15px",
-    textAlign: "left",
-  },
-  input: {
-    width: "100%",
-    padding: "8px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-    marginTop: "5px",
   },
 };
 

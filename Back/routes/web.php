@@ -29,6 +29,7 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 // Rutas Login y me
 
 Route::post('/login', [UserController::class, 'login']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/me', [UserController::class, 'me']);
@@ -44,9 +45,13 @@ Route::post('/work-entry/end', [WorkEntryController::class, 'endWork']);
 // Listar entradas/salidas del usuario autenticado
 Route::get('/work-entries', [WorkEntryController::class, 'index']);
 
+Route::get('/all-work-entries', [WorkEntryController::class, 'listAllWorkEntries']);
+
+Route::get('/work-entries/user/{userId}', [WorkEntryController::class, 'listWorkEntriesByUser']);
 
 Route::post('/absences', [AbsenceController::class, 'store']); // Crear justificante
-    Route::get('/absences', [AbsenceController::class, 'index']); // Listar justificantes del usuario autenticado
+
+Route::get('/absences', [AbsenceController::class, 'index']); // Listar justificantes del usuario autenticado
 
 
 

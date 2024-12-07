@@ -22,6 +22,7 @@ class UserController extends Controller
         ]);
     }
 
+
     /**
      * Crear un nuevo usuario.
      */
@@ -30,13 +31,28 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8'
+            'password' => 'required|string|min:8',
+            'apellidos' => 'nullable|string|max:255',
+            'telefono_fijo' => 'nullable|string|max:20',
+            'telefono_movil' => 'nullable|string|max:20',
+            'direccion' => 'nullable|string|max:255',
+            'provincia' => 'nullable|string|max:255',
+            'pais' => 'nullable|string|max:255',
+            'dni' => 'nullable|string|max:20'
         ]);
+
 
         $user = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($request->password), // Hashea la contraseña
+            'apellidos' => $validatedData['apellidos'] ?? null,
+            'telefono_fijo' => $validatedData['telefono_fijo'] ?? null,
+            'telefono_movil' => $validatedData['telefono_movil'] ?? null,
+            'direccion' => $validatedData['direccion'] ?? null,
+            'provincia' => $validatedData['provincia'] ?? null,
+            'pais' => $validatedData['pais'] ?? null,
+            'dni' => $validatedData['dni'] ?? null
         ]);
 
         // Generar el token
@@ -56,12 +72,17 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-
+    
         if (!$user) {
-            return response()->json(['message' => 'Usuario no encontrado.'], 404);
+            return response()->json(['error' => 'Usuario no encontrado.'], 404);
         }
-
-        return response()->json(['data' => $user]);
+    
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'apellidos' => $user->apellidos,
+            'email' => $user->email,
+        ]);
     }
 
     /**
@@ -154,6 +175,7 @@ class UserController extends Controller
             'message' => 'Inicio de sesión exitoso',
             'user' => $user,
             'token' => $token,
+            'rrhh' => $user->rrhh,
         ]);
     }
      // Cerrar sesión

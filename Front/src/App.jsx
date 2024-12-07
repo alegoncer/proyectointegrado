@@ -12,6 +12,7 @@ import ClockIn from "./pages/clockIn";
 import Absence from "./pages/Absence";
 import PersonalData from "./pages/PersonalData";
 import UserList from "./pages/Users";
+import WorkEntries from "./pages/WorkEntries";
 
 function App() {
   const action = useNavigationType();
@@ -24,22 +25,13 @@ function App() {
 
   return (
     <Routes>
-      {/* <Route
-        path="/"
-        element={
-          isNewUser ? (
-            <Register onSwitchToLogin={handleSwitchToLogin} />
-          ) : (
-            <Login onSwitchToRegister={handleSwitchToRegister} />
-          )
-        }
-      /> */}
       <Route path="/" element={<Login />} />
       <Route path="/ClockIn" element={<ClockIn />} />
       <Route path="/Absence" element={<Absence />} />
       <Route path="/PersonalData" element={<PersonalData />} />
       <Route path="/Users" element={<UserList />} />{" "}
       <Route path="/Register" element={<Register />} />
+      <Route path="/work-entries/:userId" element={<WorkEntries />} />
     </Routes>
   );
 }

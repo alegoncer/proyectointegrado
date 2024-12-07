@@ -10,6 +10,9 @@ const Navbar = () => {
   // Verificar si el usuario está logueado
   const isLoggedIn = !!localStorage.getItem("auth_token");
 
+  // Verificar si el usuario es rrhh
+  const isRRHH = localStorage.getItem("rrhh") === "true";
+
   const getLinkClass = (path) => (location.pathname === path ? "active" : "");
 
   const toggleDropdown = () => {
@@ -36,6 +39,7 @@ const Navbar = () => {
       if (response.ok) {
         // Limpia el almacenamiento local
         localStorage.removeItem("auth_token");
+        localStorage.removeItem("rrhh");
 
         // Cierra el dropdown y redirige al inicio
         setShowDropdown(false);
@@ -53,45 +57,68 @@ const Navbar = () => {
     <div>
       <div className="navbar">
         {/* Enlaces principales */}
-        <a href="/" className={`${getLinkClass("/")}`}>
-          Login
-        </a>
-        <a href="/clockIn" className={`${getLinkClass("/clockIn")}`}>
-          Fichar
-        </a>
-        <a href="/Absence" className={`${getLinkClass("/absence")}`}>
-          Justificantes
-        </a>
-        <a href="/PersonalData" className={`${getLinkClass("/PersonalData")}`}>
-          Sus datos
-        </a>
+        {!isLoggedIn && (
+          <a href="/" className={`${getLinkClass("/")}`}>
+            Login
+          </a>
+        )}
 
-        {/* Menú de configuración */}
-        <div className="navbar-right">
-          <button className="dropbtn" onClick={toggleDropdown}>
-            ⚙️
-          </button>
-          {showDropdown && (
-            <ul className="dropdown-list">
-              <li>
-                <a href="/users">Lista de usuarios</a>
-              </li>
-              <li>
-                <a href="/register">Nuevo usuario</a>
-              </li>
-              {isLoggedIn && (
-                <li>
-                  <button
-                    onClick={handleLogout}
-                    className="dropdown-item" // Aplica el mismo estilo que los enlaces
-                  >
-                    Cerrar sesión
-                  </button>
-                </li>
-              )}
-            </ul>
-          )}
-        </div>
+        {isLoggedIn && (
+          <a href="/clockIn" className={`${getLinkClass("/clockIn")}`}>
+            Fichar
+          </a>
+        )}
+
+        {isLoggedIn && (
+          <a href="/Absence" className={`${getLinkClass("/absence")}`}>
+            Justificantes
+          </a>
+        )}
+
+        {isLoggedIn && (
+          <a
+            href="/PersonalData"
+            className={`${getLinkClass("/PersonalData")}`}
+          >
+            Sus datos
+          </a>
+        )}
+        {/* Menu de configuración */}
+        {isLoggedIn && (
+          <div className="navbar-right">
+            <button className="dropbtn" onClick={toggleDropdown}>
+              ⚙️
+            </button>
+            {showDropdown && (
+              <ul className="dropdown-list">
+                {isLoggedIn && isRRHH && (
+                  <>
+                    <li>
+                      <a href="/users">Lista de usuarios</a>
+                    </li>
+                    <li>
+                      <a href="/register">Nuevo usuario</a>
+                    </li>
+                  </>
+                )}
+                {isLoggedIn && (
+                  <li>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault(); // Para prevenir la navegación
+                        handleLogout();
+                      }}
+                      className=""
+                    >
+                      Cerrar sesión
+                    </a>
+                  </li>
+                )}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

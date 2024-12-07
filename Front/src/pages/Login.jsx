@@ -56,10 +56,12 @@ const Login = ({ onSwitchToRegister }) => {
       const data = await response.json();
       console.log("Usuario autenticado:", data); // Manejar respuesta (almacenar token, redirigir, etc.)
       localStorage.setItem("auth_token", data.token); // Almacena el token
-      navigate("/PersonalData");
+      localStorage.setItem("rrhh", data.rrhh);
+
+      navigate("/clockIn");
       // Aquí puedes redirigir al usuario o manejar la sesión
     } catch (err) {
-      setError("Error de conexión con el servidor");
+      setError("Error de autentificación");
     } finally {
       setLoading(false);
     }
@@ -72,7 +74,7 @@ const Login = ({ onSwitchToRegister }) => {
         <form style={styles.form} onSubmit={handleSubmit}>
           {error && <p style={styles.error}>{error}</p>}
           <label style={styles.label}>
-            Usuario:
+            Correo:
             <input
               type="text"
               name="usuario"
@@ -95,11 +97,6 @@ const Login = ({ onSwitchToRegister }) => {
             <button style={styles.button} type="submit" disabled={loading}>
               {loading ? "Cargando..." : "Entrar"}
             </button>
-          </div>
-          <div style={styles.switchContainer}>
-            <p style={styles.switchText} onClick={onSwitchToRegister}>
-              ¿No tienes cuenta? Regístrate aquí
-            </p>
           </div>
         </form>
       </div>
